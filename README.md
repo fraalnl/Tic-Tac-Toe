@@ -235,10 +235,10 @@ can't directly apply inline styles to text within JSX. JSX treats text as a prim
 
  - `&&` is like saying, "If everything on the left side is true, give me the last thing on the right side."
 
-If you had `isPacked && '✔' && 'abc'`, the expression would return `'abc'` since that's the last "truthy" value encountered.
+If you had `isPacked && '✔' && 'abc'`, the expression would return `'abc'` since that's the last "truthy" value encountered.s
 
-- {cond ? <A /> : <B />} means “if cond, render <A />, otherwise <B />”.
-- {cond && <A />} means “if cond, render <A />, otherwise nothing”.
+- `{cond ? <A /> : <B />}` means if cond, render `<A />`, otherwise `<B />`.
+- `{cond && <A />}` means if cond, render `<A />`, otherwise nothing.
 
 React considers `false` as a “hole” in the JSX tree, just like `null or undefined`, and doesn’t render anything in its place.
 
@@ -445,3 +445,22 @@ const listItems = people.map(person =>
 - Local mutation: Your component’s little secret 
 - event handlers are defined inside your component, they don’t run during rendering! So event handlers don’t need to be pure.
 - Strive to express your component’s logic in the JSX you return. When you need to “change things”, you’ll usually want to do it in an event handler. As a last resort, you can `useEffect`.
+
+Leaf components are near the bottom of the tree and have no child components and are often frequently re-rendered.
+### Module Dependency Tree -- don't understand
+## Responding to events
+- Built-in components like `<button>` only support built-in browser events like `onClick`
+- Event handlers are your own functions that will be triggered in response to interactions like clicking
+- first define a function (inside a component, e.g. `handleClick()`) and then pass it as a prop to the appropriate JSX tag
+
+e.g. `onClick={handleClick}, onMouseEnter={handleMouseEnter}` or arrow function
+
+```
+<button onClick={() => {
+  alert('You clicked me!');
+}}>
+
+passing a function (correct)	        calling a function (incorrect)
+<button onClick={handleClick}>	       <button onClick={handleClick()}>
+<button onClick={() => alert('...')}>	  <button onClick={alert('...')}>
+```
