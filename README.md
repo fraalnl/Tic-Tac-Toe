@@ -464,3 +464,165 @@ passing a function (correct)	        calling a function (incorrect)
 <button onClick={handleClick}>	       <button onClick={handleClick()}>
 <button onClick={() => alert('...')}>	  <button onClick={alert('...')}>
 ```
+### Event propagation
+Event handlers receive an `event object` as their only argument. usually called `e`
+```
+export default function Signup() {
+  return (
+    <form onSubmit={e => {
+      //e.preventDefault();
+      alert('Submitting!');
+    }}>
+      <input />
+      <button>Send</button>
+    </form>
+  );
+}
+```
+`<form>` submit event: when a button inside of it is clicked, will reload the whole page by default
+- `e.stopPropagation()` stops the event handlers attached to the tags above from firing.
+- `e.preventDefault()` prevents the default browser behavior for the few events that have it.
+```
+return (
+    <button onClick={handleClick}>
+      Toggle the lights
+    </button>
+  );
+  // or wrap the call into another function, like <button onClick={() => handleClick()}>:
+  return (
+    <button onClick={() => handleClick()}>
+      Toggle the lights
+    </button>
+  );
+  ```
+  ```
+  export default function ColorSwitch({  // 1st line to be executed
+  onChangeColor
+}) {
+  return (     // 2nd line to be executed
+    <button onClick={e => {
+      e.stopPropagation();
+      onChangeColor();
+    }}>
+      Change color
+    </button>
+  );
+}
+  ```
+- props are like messages passed between components. `onChangeColor` as a prop, meaning it's expected to come from a parent component
+- No Function Body: `ColorSwitch` doesn't define an `onChangeColor` function inside itself. assuming it exists outside.
+- `ColorSwitch component` is to trigger a change. It doesn't change the color directly; it relies on the `onChangeColor` function provided by the parent component to do that.
+## State
+The `[` and `]` syntax here is called array destructuring and it lets you read values from an array. The array returned by useState always has exactly two items.
+```
+// multiple state variables
+import { useState } from 'react';
+import { sculptureList } from './data.js';
+
+export default function Gallery() {
+  const [index, setIndex] = useState(0);
+  const [showMore, setShowMore] = useState(false);
+
+  function handleNextClick() {
+    setIndex(index + 1);
+  }
+
+  function handleMoreClick() {
+    setShowMore(!showMore);
+  }
+
+  let sculpture = sculptureList[index];
+  return (
+    <>
+      <button onClick={handleNextClick}>
+        Next
+      </button>
+      <h2>
+        <i>{sculpture.name} </i> 
+        by {sculpture.artist}
+      </h2>
+      <h3>  
+        ({index + 1} of {sculptureList.length})
+      </h3>
+      <button onClick={handleMoreClick}>
+        {showMore ? 'Hide' : 'Show'} details
+      </button>
+      //if showMore is true, the paragraph will be rendered.
+      {showMore && <p>{sculpture.description}</p>}
+      <img 
+        src={sculpture.url} 
+        alt={sculpture.alt}
+      />
+    </>
+  );
+}
+```
+state is fully private to the component declaring it
+```
+import { useState } from 'react';
+
+export default function Form() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  function handleFirstNameChange(e) {
+    setFirstName(e.target.value);
+  }
+
+  function handleLastNameChange(e) {
+    setLastName(e.target.value);
+  }
+
+  function handleReset() {
+    setFirstName('');
+    setLastName('');
+  }
+
+  return (
+    <form onSubmit={e => e.preventDefault()}>
+      <input
+        placeholder="First name"
+        value={firstName}
+        onChange={handleFirstNameChange}
+      />
+      <input
+        placeholder="Last name"
+        value={lastName}
+        onChange={handleLastNameChange}
+      />
+      <h1>Hi, {firstName} {lastName}</h1>
+      <button onClick={handleReset}>Reset</button>
+    </form>
+  );
+}
+```
+```
+export default function FeedbackForm() {
+  const [isSent, setIsSent] = useState(false);
+  const [message, setMessage] = useState('');
+
+  if (isSent) {   // if true, render Thank you
+    return <h1>Thank you!</h1>;
+  } else {      // if false
+    return (
+      <form onSubmit={e => {  //defines an event handler that gets called when the form is submitted
+        e.preventDefault();
+        alert(`Sending: "${message}"`);
+        setIsSent(true);
+      }}>
+        <textarea
+          placeholder="Message"
+          //Sets the value of the text area to the current value of the message state variable
+          value={message}  
+          //event handler that updates the message state variable whenever the user types in the text area.
+          onChange={e => setMessage(e.target.value)}
+        />
+        <br />
+        <button type="submit">Send</button>
+      </form>
+    );
+  }
+}
+```
+A `state` variable is only necessary to keep information between re-renders of a component. Within a single event handler, a regular variable will do fine. 
+## Render and Commit
