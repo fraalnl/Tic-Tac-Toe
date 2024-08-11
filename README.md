@@ -626,3 +626,96 @@ export default function FeedbackForm() {
 ```
 A `state` variable is only necessary to keep information between re-renders of a component. Within a single event handler, a regular variable will do fine. 
 ## Render and Commit
+- On initial render, React will call the root component.
+- For subsequent renders, React will call the function component whose state update triggered the render.
+- Updating your component’s state automatically queues a render
+- Setting state only changes it for the next render
+
+`setState(5)` actually works like `setState(n => 5)`, but `n` is unused!
+
+React processes state updates after event handlers have finished running. This is called batching.
+
+not possible to make any changes to the built-in primitive values like numbers, strings, and booleans in JavaScript.
+```
+onPointerMove={e => {
+  setPosition({
+    x: e.clientX,
+    y: e.clientY
+  });
+}}
+```
+With `setPosition`, you’re telling React:
+- Replace position with this new object
+- And render this component again
+```
+import { useState } from 'react';
+
+export default function Form() {
+  const [person, setPerson] = useState({
+    firstName: 'Barbara',
+    lastName: 'Hepworth',
+    email: 'bhepworth@sculpture.com'
+  });
+
+  function handleFirstNameChange(e) {
+    setPerson({
+      ...person,
+      firstName: e.target.value
+    });
+  }
+
+  function handleLastNameChange(e) {
+    setPerson({
+      ...person,
+      lastName: e.target.value
+    });
+  }
+
+  function handleEmailChange(e) {
+    setPerson({
+      ...person,
+      email: e.target.value
+    });
+  }
+
+  return (
+    <>
+      <label>
+        First name:
+        <input
+          value={person.firstName}
+          onChange={handleFirstNameChange}
+        />
+      </label>
+      <label>
+        Last name:
+        <input
+          value={person.lastName}
+          onChange={handleLastNameChange}
+        />
+      </label>
+      <label>
+        Email:
+        <input
+          value={person.email}
+          onChange={handleEmailChange}
+        />
+      </label>
+      <p>
+        {person.firstName}{' '}  // {' '} is used to insert a space between the first name, last name
+        {person.lastName}{' '}
+        ({person.email})
+      </p>
+    </>
+  );
+}
+```
+```
+setPerson({
+  ...person, // Copy other fields
+  artwork: { // but replace the artwork
+    ...person.artwork, // with the same one
+    city: 'New Delhi' // but in New Delhi!
+  }
+});
+```
